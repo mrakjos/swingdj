@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { cacheFirst } from "sw-toolbox";
+// import { cacheFirst } from "sw-toolbox";
 
-// const redirect_uri = "http://localhost:4000/";
-const redirect_uri = "https://jardakotesovec.github.io/swingdj/";
+const redirect_uri = "http://localhost:4000/";
+// const redirect_uri = "https://jardakotesovec.github.io/swingdj/";
 
 const client_id = "d2686e8e912a4591a9c0dd7a449bf456";
 const scope =
@@ -133,6 +133,7 @@ class App extends Component {
       presets: presetsLoaded
     };
   }
+
   saveToLocalStorage = () => {
     const { presets } = this.state;
     localStorage.setItem("presets", JSON.stringify(presets));
@@ -208,6 +209,7 @@ class App extends Component {
       }
     );
   };
+
   handleDeletePreset = () => {
     const { presets, selectedPresetIndex } = this.state;
     if (presets.length === 1) {
@@ -218,6 +220,7 @@ class App extends Component {
       this.saveToLocalStorage();
     });
   };
+
   handleListPlaylists = async () => {
     const { access_token, presets, selectedPresetIndex } = this.state;
 
@@ -242,15 +245,20 @@ class App extends Component {
     );
     const mpTracks = mpTracksAll.filter(t => !t.is_local);
     const mpTracksLocal = mpTracksAll.filter(t => t.is_local);
+
     const mpTracks2X = await fetchAll(
       `${main2XPlaylist.tracks.href}`,
       "items",
       access_token
     );
 
+
+    console.log('ALL TRACKS', mpTracksAll);
+
     const track2XIds = mpTracks2X.map(t => t.track.id);
 
     const mpTrackIds = mpTracks.map(s => s.track.id);
+
     const mpFeatures = await fetchIds(
       "https://api.spotify.com/v1/audio-features/?ids=",
       mpTrackIds,
@@ -258,6 +266,8 @@ class App extends Component {
       100,
       access_token
     );
+
+    console.log('FEATURES', mpFeatures);
 
     const tracks = mpFeatures.map(af => {
       const tempo = track2XIds.includes(af.id) ? af.tempo * 2 : af.tempo;
@@ -273,6 +283,7 @@ class App extends Component {
         duration: af.duration_ms,
         uri: af.uri,
         name: trackObject.track.name,
+        addedAt: trackObject.added_at,
         isLocal: false
       };
     });
@@ -292,6 +303,7 @@ class App extends Component {
         duration: t.track.duration_ms,
         uri: t.track.uri,
         name: t.track.name,
+        addedAt: t?.added_at,
         isLocal: true
       });
     });
@@ -300,10 +312,13 @@ class App extends Component {
       this.setState({
         instructions
       });
+
       return;
     }
 
     const tracksInBands = bpmRanges.map(() => []);
+
+    console.log('TRACKS', tracks);
 
     tracks.forEach(songInfo => {
       const index = bpmRanges.findIndex(
@@ -369,6 +384,7 @@ class App extends Component {
     // fill slots with equal distribution
     bpmRangesSorted.forEach(br => {
       const bandTrackCount = tracksSelected[br.index].length;
+      
       tracksSelected[br.index].forEach((track, j) => {
         const segmentWidth = currentTrackCount / bandTrackCount;
         const targetIndex = Math.round(j * segmentWidth + segmentWidth / 2);
@@ -376,7 +392,7 @@ class App extends Component {
         let shootRange = 0;
         while (1) {
           const leftShoot = Math.max(0, targetIndex - shootRange);
-          const rightShot = Math.min(
+          const rightShoot = Math.min(
             currentTrackCount - 1,
             targetIndex + shootRange
           );
@@ -386,8 +402,8 @@ class App extends Component {
             break;
           }
 
-          if (!trackSlots[rightShot]) {
-            trackSlots[rightShot] = track;
+          if (!trackSlots[rightShoot]) {
+            trackSlots[rightShoot] = track;
             break;
           }
           shootRange++;
@@ -444,6 +460,7 @@ class App extends Component {
 
     //console.log(tracksSelected)
   };
+
   renderPresetsList() {
     const { presets, selectedPresetIndex } = this.state;
 
@@ -452,6 +469,7 @@ class App extends Component {
         <div>
           {presets.map((preset, i) => (
             <button
+              key={i}
               style={{
                 backgroundColor:
                   i === selectedPresetIndex ? "#F0E68C" : "#ffffff"
@@ -469,6 +487,7 @@ class App extends Component {
       </div>
     );
   }
+
   renderPresetControls() {
     const { presets, selectedPresetIndex } = this.state;
     const preset = presets[selectedPresetIndex];
@@ -523,70 +542,72 @@ class App extends Component {
           </div>
         </div>
         <table>
-          {bpmRanges.map((bpmRange, i) => (
+          <tbody>
+            {bpmRanges.map((bpmRange, i) => (
+              <tr key={i}>
+                <td>
+                  <input
+                    value={bpmRange.min}
+                    onChange={e => {
+                      this.handleUpdateBpmInput(
+                        "min",
+                        i,
+                        parseInt(e.target.value)
+                      );
+                    }}
+                  />
+                </td>
+                <td>
+                  <input
+                    value={bpmRange.max}
+                    onChange={e => {
+                      this.handleUpdateBpmInput(
+                        "max",
+                        i,
+                        parseInt(e.target.value)
+                      );
+                    }}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={bpmRange.rate}
+                    onChange={e => {
+                      this.handleUpdateBpmInput(
+                        "rate",
+                        i,
+                        parseInt(e.target.value)
+                      );
+                    }}
+                  />
+                </td>
+                <td>{Math.round(bpmRange.rate)}%</td>
+                <td>
+                  <button onClick={() => this.handleAddRange(i)}>
+                    Add Range
+                  </button>
+                </td>
+                <td>
+                  <button onClick={() => this.handleRemoveRange(i)}>
+                    Remove Range
+                  </button>
+                </td>
+              </tr>
+            ))}
             <tr>
-              <td>
-                <input
-                  value={bpmRange.min}
-                  onChange={e => {
-                    this.handleUpdateBpmInput(
-                      "min",
-                      i,
-                      parseInt(e.target.value)
-                    );
-                  }}
-                />
+              <td />
+              <td />
+              <td style={{ backgroundColor: totalRate == 100 ? "white" : "red" }}>
+                {totalRate}%
               </td>
-              <td>
-                <input
-                  value={bpmRange.max}
-                  onChange={e => {
-                    this.handleUpdateBpmInput(
-                      "max",
-                      i,
-                      parseInt(e.target.value)
-                    );
-                  }}
-                />
-              </td>
-              <td>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={bpmRange.rate}
-                  onChange={e => {
-                    this.handleUpdateBpmInput(
-                      "rate",
-                      i,
-                      parseInt(e.target.value)
-                    );
-                  }}
-                />
-              </td>
-              <td>{Math.round(bpmRange.rate)}%</td>
-              <td>
-                <button onClick={() => this.handleAddRange(i)}>
-                  Add Range
-                </button>
-              </td>
-              <td>
-                <button onClick={() => this.handleRemoveRange(i)}>
-                  Remove Range
-                </button>
-              </td>
+              <td />
+              <td />
+              <td />
             </tr>
-          ))}
-          <tr>
-            <td />
-            <td />
-            <td style={{ backgroundColor: totalRate == 100 ? "white" : "red" }}>
-              {totalRate}%
-            </td>
-            <td />
-            <td />
-            <td />
-          </tr>
+          </tbody>
         </table>
         <div>
           {" "}
@@ -600,10 +621,11 @@ class App extends Component {
       </div>
     );
   }
+
   renderOptions() {
     const { instructions, errorMessage } = this.state;
     return (
-      <div>
+      <div style={{ padding: '15px'}}>
         <div>{this.renderPresetsList()}</div>
         <div>{this.renderPresetControls()}</div>
         <div>
@@ -617,8 +639,8 @@ class App extends Component {
               <span style={{ color: "red" }}>{errorMessage}</span>
             ) : null}
           </div>
-          {instructions.map(instruction => (
-            <div>
+          {instructions.map((instruction, index) => (
+            <div key={index}>
               <p>{instruction}</p>
             </div>
           ))}
@@ -626,6 +648,7 @@ class App extends Component {
       </div>
     );
   }
+
   renderLogin() {
     return (
       <div>
@@ -633,6 +656,7 @@ class App extends Component {
       </div>
     );
   }
+
   render() {
     const { access_token } = this.state;
 
@@ -642,10 +666,10 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">SwingDj</h1>
-          <a href="https://github.com/jardakotesovec/swingdj/blob/master/README.md">
+          <h1 className="App-title">SwingDj (<a href="https://github.com/jardakotesovec/swingdj/blob/master/README.md">
             documentation
-          </a>
+          </a>)</h1>
+          
         </header>
         {content}
       </div>
