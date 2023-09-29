@@ -7,10 +7,11 @@ import InputNumber from "./components/InputNumber";
 
 // import { cacheFirst } from "sw-toolbox";
 
-const REDIRECT_URI = "http://localhost:4000/";
-// const REDIRECT_URI = "https://jardakotesovec.github.io/swingdj/";
+// const REDIRECT_URI = "http://localhost:4000/";
+const REDIRECT_URI = "https://mrakjos.github.io/swingdj/";
 
-const CLIENT_ID = "d2686e8e912a4591a9c0dd7a449bf456";
+// const CLIENT_ID = "d2686e8e912a4591a9c0dd7a449bf456";
+const CLIENT_ID = "a6f627c5b3b944779cbb23b5676e49fb";
 const SCOPE =
   "user-read-private user-read-email playlist-read-private playlist-read-collaborative playlist-modify-private";
 
