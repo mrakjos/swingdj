@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/swingdj/static/css/main.4fc30c7c.css",
-    "main.js": "/swingdj/static/js/main.97686311.js",
+    "main.js": "/swingdj/static/js/main.bbe2e856.js",
     "static/media/logo.svg": "/swingdj/static/media/logo.103b5fa18196d5665a7e12318285c916.svg",
     "index.html": "/swingdj/index.html",
     "main.4fc30c7c.css.map": "/swingdj/static/css/main.4fc30c7c.css.map",
-    "main.97686311.js.map": "/swingdj/static/js/main.97686311.js.map"
+    "main.bbe2e856.js.map": "/swingdj/static/js/main.bbe2e856.js.map"
   },
   "entrypoints": [
     "static/css/main.4fc30c7c.css",
-    "static/js/main.97686311.js"
+    "static/js/main.bbe2e856.js"
   ]
 }
