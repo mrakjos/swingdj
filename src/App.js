@@ -654,7 +654,7 @@ class App extends Component {
               </td>
             </tr>
             <tr>
-              <td>Group up to</td>
+              <td>Group range up to</td>
               <td>
                 <input
                   type="range"
@@ -808,7 +808,7 @@ class App extends Component {
                 <tr>
                   <td>Artist</td>
                   <td>Name</td>
-                  <td>Range index</td>
+                  <td>Range group</td>
                   <td>Duration</td>
                 </tr>
               </thead>
@@ -823,7 +823,7 @@ class App extends Component {
                     <tr key={track.id || index} style={{ background: bgColors[lastIndexOfBg]}}>
                       <td>{track.artists}</td>
                       <td>{track.name}</td>
-                      <td>{track.bandIndex}</td>
+                      <td>{track.bandIndex + 1}</td>
                       <td>{msToTime(track.duration)}</td>
                     </tr>
                   );
